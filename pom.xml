@@ -11,8 +11,15 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<serenity.version>1.1.26-rc.3</serenity.version>
-		<serenity.jbehave.version>1.1.0</serenity.jbehave.version>
+		<serenity.version>1.1.42</serenity.version>
+		<serenity.jbehave.version>1.17.0</serenity.jbehave.version>
+		<log4j.version>2.7</log4j.version>
+		<junit.version>4.12</junit.version>
+		<assertj.version>2.6.0</assertj.version> <!-- AssertJ 2.x for Java 7 and 3.x for Java 8 -->
+		<lambdaj.version>2.3.3</lambdaj.version>
+		<mvn.surefire.version>2.19.1</mvn.surefire.version>
+		<mvn.failsafe.version>2.19.1</mvn.failsafe.version>
+		<mvn.compiler.version>3.5.1</mvn.compiler.version>
 		<webdriver.driver>chrome</webdriver.driver>
 		<webdriver.chrome.driver>./drivers/chromedriver.exe</webdriver.chrome.driver>
 	</properties>	
@@ -20,17 +27,17 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.5</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.5</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.5</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.serenity-bdd</groupId>
@@ -46,18 +53,18 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>1.7.0</version>
+			<version>${assertj.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.lambdaj</groupId>
 			<artifactId>lambdaj</artifactId>
-			<version>2.3.3</version>
+			<version>${lambdaj.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -65,14 +72,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.18.1</version>
+				<version>${mvn.surefire.version}</version>
 				<configuration>
 					<skip>true</skip>
 				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.18.1</version>
+				<version>${mvn.failsafe.version}</version>
 				<configuration>
 					<includes>
 						<include>**/*Test.java</include>
@@ -84,6 +91,10 @@
 					<systemPropertyVariables>
 						<webdriver.driver>${webdriver.driver}</webdriver.driver>
 					</systemPropertyVariables>
+                    <parallel>classes</parallel>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <threadCount>2</threadCount>
+                    <forkCount>2C</forkCount>
 				</configuration>
 				<executions>
 					<execution>
@@ -97,7 +108,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>${mvn.compiler.version}</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
