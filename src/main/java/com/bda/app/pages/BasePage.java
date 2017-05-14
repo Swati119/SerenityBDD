@@ -3,7 +3,6 @@ package com.bda.app.pages;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -18,11 +17,11 @@ import com.bda.app.pages.objects.BasePageOR;
 
 import net.serenitybdd.core.exceptions.SerenityManagedException;
 import net.serenitybdd.core.pages.PageObject;
+import net.thucydides.core.webdriver.exceptions.ElementNotVisibleAfterTimeoutError;
 
-// TODO: Auto-generated Javadoc
 public class BasePage extends PageObject implements BasePageOR {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(BasePage.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BasePage.class);
 
 	/**
 	 * Instantiates a new base page.
@@ -47,7 +46,7 @@ public class BasePage extends PageObject implements BasePageOR {
 	 */
 	public String getPageTitle() {
 		String title = getDriver().getTitle();
-		LOGGER.info("Page title: {}", title);
+		LOGGER.debug("Page title: {}", title);
 		return title;
 	}
 
@@ -56,17 +55,14 @@ public class BasePage extends PageObject implements BasePageOR {
 	 *
 	 * @return true, if successful
 	 */
-	public boolean hasLoaded() {
+	public boolean waitForAngular() {
 		boolean flag = false;
 		try {
-			getDriver().manage().timeouts().setScriptTimeout(Timeouts.SIXTY.seconds, TimeUnit.SECONDS);
+			getDriver().manage().timeouts().setScriptTimeout(Timeouts.SIXTY.secs, TimeUnit.SECONDS);
 			waitForAngularRequestsToFinish();
+			flag = true;
 		} catch (SerenityManagedException swde) {
 			LOGGER.warn("", swde);
-		} catch (Exception e) {
-			LOGGER.warn("", e);
-		} finally {
-			flag = true;
 		}
 		return flag;
 	}
@@ -90,21 +86,8 @@ public class BasePage extends PageObject implements BasePageOR {
 				return ((JavascriptExecutor) driver).executeScript("return document.readyState").equals("complete");
 			}
 		};
-		Wait<WebDriver> wait = new WebDriverWait(getDriver(), Timeouts.SIXTY.seconds);
-		try {
-			flag = wait.until(expectation);
-		} catch (UnhandledAlertException uae) {
-			LOGGER.debug("Accepting alert with message: " + uae);
-			getDriver().switchTo().alert().accept();
-			getDriver().switchTo().defaultContent();
-			try {
-				flag = wait.until(expectation);
-			} catch (Exception e) {
-				LOGGER.warn("", e);
-			}
-		} catch (Exception e) {
-			LOGGER.warn("", e);
-		}
+		Wait<WebDriver> wait = new WebDriverWait(getDriver(), Timeouts.SIXTY.secs);
+		flag = wait.until(expectation);
 		return flag;
 	}
 
@@ -113,17 +96,20 @@ public class BasePage extends PageObject implements BasePageOR {
 	 *
 	 * @param element
 	 *            the element
+	 * @throws Exception 
 	 */
 	protected void click(WebElement element) {
-		waitFor(ExpectedConditions.visibilityOf(element));
-		waitFor(ExpectedConditions.elementToBeClickable(element));
-		waitForDocumentReadyStateToComplete();
-		if (!element.isDisplayed()) {
-			bringElementToVisibleArea(element);
+		if (waitFor(ExpectedConditions.elementToBeClickable(element)) != null) {
+			if (element.isDisplayed()) {
+				// Do nothing
+			} else {
+				bringElementToVisibleArea(element);
+			}
+			clickOn(element);
+		} else {
+			LOGGER.error("Element to be clicked is not clickable i.e not visible/enabled!");
+			throw new ElementNotVisibleAfterTimeoutError("Element to be clicked is not clickable i.e not visible/enabled!");
 		}
-		clickOn(element);
-		LOGGER.debug("Clicked on element located {}", element);
-		waitForDocumentReadyStateToComplete();
 	}
 
 	/**

@@ -14,12 +14,13 @@ import com.bda.app.constants.enums.Timeouts;
 /**
  * 
  * All input types: http://www.w3schools.com/tags/att_input_type.asp
+ * 
  * @author zeeshans
  *
  */
 public class InputText extends BaseElement {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(InputText.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InputText.class);
 
 	/**
 	 * Instantiates a new input text.
@@ -34,10 +35,10 @@ public class InputText extends BaseElement {
 	/**
 	 * Clear.
 	 */
-	public void clear() {
+	public boolean clear() {
 		element(locator).clear();
-		LOGGER.info("Cleared element located {}", locator);
-		assertThat(element(locator).getTextValue()).as("Unable to clear element located %s", locator).isEmpty();
+		String value = element(locator).getTextValue();
+		return value.isEmpty();
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class InputText extends BaseElement {
 		try {
 			click();
 			enter(expectedText).intoField(locator);
-			waitABit(Timeouts.FIVE.seconds / 5);
+			waitABit(Timeouts.FIVE.secs / 5);
 			String actualText = element(locator).getTextValue();
 			LOGGER.info("Element located {} has value: {}", locator, actualText);
 			assertThat(actualText).isEqualToIgnoringCase(expectedText);
